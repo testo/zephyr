@@ -1,0 +1,256 @@
+# Copyright 2025 Linumiz
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  BQ25620/BQ25622 is a single cell buck battery charger with OTG support.
+
+  The device has a single child node for the charger. For example:
+
+  bq25620@6b {
+    compatible = "ti,bq2562x";
+    reg = <0x6b>;
+
+    ce-gpios = <&gpioa 3 GPIO_ACTIVE_LOW>;
+    watchdog-timeout-ms = <50000>;
+    constant-charge-current-max-microamp = <1040000>;
+    constant-charge-voltage-max-microvolt = <4200000>;
+    precharge-current-microamp = <100000>;
+    charge-term-current-microamp = <60000>;
+    input-current-limit-microamp = <1000000>;
+    input-voltage-limit-microvolt = <4600000>;
+  };
+
+compatible: "ti,bq2562x"
+
+include: [battery.yaml, i2c-device.yaml]
+
+properties:
+  constant-charge-current-max-microamp:
+    type: int
+    default: 1040000
+
+  constant-charge-voltage-max-microvolt:
+    type: int
+    default: 4200000
+
+  precharge-current-microamp:
+    type: int
+    default: 100000
+
+  charge-term-current-microamp:
+    type: int
+    default: 60000
+
+  ce-gpios:
+    type: phandle-array
+    description: Active low, charge enable pin
+
+  int-gpios:
+    type: phandle-array
+    description: Interrupt pin
+
+  ti,min-sys-voltage-microvolt:
+    type: int
+    default: 3520000
+    description: |
+      Minimum system voltage in micro volts with a 100000 micro volt step.
+
+  ti,input-voltage-limit-microvolt:
+    type: int
+    default: 4800000
+    description: |
+      Minimum input voltage limit in micro volts with a 100000 micro volt step.
+
+  ti,input-current-limit-microamp:
+    type: int
+    default: 4000000
+    description: |
+      Maximum input current limit in micro amps with a 100000 micro amp step.
+
+  ti,thermal-regulation-threshold:
+    type: int
+    default: 1
+    enum:
+      - 0
+      - 1
+    description: |
+      Charger control thermal regulation threshold
+      0: 60 degree celsius
+      1: 120 degree celsius
+
+  ti,switching-converter-freq:
+    type: int
+    default: 0
+    enum:
+      - 0
+      - 1
+      - 2
+    description: |
+      Charger step-down converter switching frequency
+      0: Nominal, 1.5 MHz
+      1: -10%, 1.35 MHz
+      2: +10%, 1.65 MHz
+
+  ti,switching-converter-strength:
+    type: int
+    default: 3
+    enum:
+      - 0
+      - 1
+      - 3
+    description: |
+      Charger step-down converter drive strength for efficiency vs EMI
+      0: weak
+      1: normal
+      3: strong
+
+  ti,q1-fullon:
+    type: int
+    default: 0
+    enum:
+      - 0
+      - 1
+    description: |
+      Forces RBFET (Q1) into low resistance state (26 mΩ) , regardless of IINDPM setting.
+      0: RBFET RDSON determined by IINDPM setting
+      1: RBFET RDSON is always 26 mΩ
+
+  ti,q4-fullon:
+    type: int
+    default: 0
+    enum:
+      - 0
+      - 1
+    description: |
+      Forces BATFET (Q4) into low resistance state (15 mΩ), regardless of ICHG setting.
+      0: BATFET RDSON determined by charge current
+      1: BATFET RDSON is always 15 mΩ 
+
+  ti,vindpm-bat-track:
+    type: int
+    default: 0
+    enum:
+      - 0
+      - 1
+    description: |
+      Sets VINDPM to track BAT voltage. Actual VINDPM is higher of the VINDPM register value and VBAT + VINDPM_BAT_TRACK.
+      0: Disable function
+      1: VBAT + 400 mV
+
+  ti,verchg-bat-offset:
+    type: int
+    default: 0
+    enum:
+      - 0
+      - 1
+    description: |
+      Battery Recharge Threshold Offset.
+      0: 100 mV
+      1: 200 mV
+
+  ti,enable-dcp-bias:
+    type: int
+    default: 1
+    enum:
+      - 0
+      - 1
+    description: |
+      Enable 600 mV bias on D+ pin whenever DCP is detected by BC1.2 detection algorithm.
+      0: Disable 600 mV bias on D+ pin
+      1: Enable 600 mV bias on D+ pin if DCP detected 
+
+  ti,enable-savety-tmrs:
+    type: int
+    default: 1
+    enum:
+      - 0
+      - 1
+    description: |
+      Enable fast charge, pre-charge and trickle charge timers.
+      0: Disable 
+      1: Enable 
+
+  ti,precharge_timer:
+    type: int
+    default: 0
+    enum:
+      - 0
+      - 1
+    description: |
+      Set precharge safety timeout.
+      0: 2.5h
+      1: 0.62h 
+
+  ti,fast_charge_timer:
+    type: int
+    default: 0
+    enum:
+      - 0
+      - 1
+    description: |
+      Set fast charge safety timeout.
+      0: 12h
+      1: 24h 
+
+  ti,timer2x_en:
+    type: int
+    default: 1
+    enum:
+      - 0
+      - 1
+    description: |
+      Allow timeout-doubling in DPM mode or thermal regulation.
+      0: Not allowed
+      1: allowed
+
+  ti,auto-battery-discharging:
+    type: int
+    default: 1
+    enum:
+      - 0
+      - 1
+    description: |
+      Enable the auto battery discharging during the battery OVP fault.
+      0: The charger does NOT apply a discharging current on BAT during battery OVP triggered 
+      1: The charger does apply a discharging current on BAT during battery OVP triggered 
+
+  ti,vbus-ovp:
+    type: int
+    default: 1
+    enum:
+      - 0
+      - 1
+    description: |
+      Sets VBUS overvoltage protection threshold.
+      0: 6.3v
+      1: 18.5v 
+
+  ti,peak-current-protection-threshold:
+    type: int
+    default: 3
+    enum:
+      - 0
+      - 1
+      - 2
+      - 3
+    description: |
+      Battery discharging peak current protection threshold setting.
+      0: 1.5 A
+      1: 3 A 
+      2: 6 A
+      3: 12 A
+
+  ti,charge-rate-stage:
+    type: int
+    default: 0
+    enum:
+      - 0
+      - 1
+      - 2
+      - 3
+    description: |
+      The charge rate definition for the fast charge stage.
+      0: 1 C
+      1: 2 C 
+      2: 4 C
+      3: 6 C
